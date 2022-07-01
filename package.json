@@ -1,0 +1,29 @@
+{
+  "name": "pruebaanalistanode",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dlvelasc/pruebaAnalistaNode.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dlvelasc/pruebaAnalistaNode/issues"
+  },
+  "homepage": "https://github.com/dlvelasc/pruebaAnalistaNode#readme",
+  "dependencies": {
+    "express": "^4.18.1",
+    "graceful-fs": "4.2.2",
+    "mysql": "^2.18.1",
+    "totp-generator": "github:bellstrand/totp-generator"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.18"
+  }
+}
