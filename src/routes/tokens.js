@@ -6,7 +6,7 @@ const mysqlConnection = require('../database');
 
 const queryConn = util.promisify(mysqlConnection.query).bind(mysqlConnection);
 
-router.get('/', (req,res) => {
+/* router.get('/', (req,res) => {
     mysqlConnection.query('SELECT * FROM tokens',(err,rows,fields) => {
         if(!err){
             res.json(rows);
@@ -14,7 +14,7 @@ router.get('/', (req,res) => {
             console.log(err);
         }
     }); 
-});
+}); */
 
 router.get('/:id',(req,res) => {
     const { id } = req.params;
@@ -43,41 +43,44 @@ router.post('/usarToken',(req,res)=>{
             const seed=JSON.parse(JSON.stringify(rows))[0]['privateKey'];
             console.log(seed);
             const tokenA=totp(seed, { period: 60 });
-            const TokenP = totp(seed,{ timestamp: (now()/1000)-10} );
+            const tokenP = totp(seed,{ timestamp: (Date.now()/1000)-10} );
             var token;
-            if tokenNum == tokenA {
-                token = tokenS;
-            }elif(tokenNum == tokenP){
+            if (tokenNum == tokenA) {
+                token = tokenA;
+            }else if (tokenNum == tokenP){
                 token = tokenP;
             }
-            mysqlConnection.query('SELECT used FROM tokens WHERE id = ?',(err,rows,fields) => {
+            mysqlConnection.query('UPDATE tokens SET used = true WHERE value = ?',[token],(err,rows,fields) => {
                 if(!err){
-                    res.json(rows);
+                    res.json("Procedimiento exitoso");
                 }else{
                     console.log(err);
+                    res.json("Intente de nuevo, TOKEN invalido");
                 }
             }); 
-            
+        }finally {    
         }
     })()
     
 });
 
-router.post('/generarToken',(req,res)=>{
-    let query = `CALL tokenAdd(?,?,?,?)`;
-    const  userId = req.body['id'];
-    
+router.get('/generarToken/:id',(req,res)=>{
+    let query = 'CALL tokenAdd(?,?,?,?)';
+    const { id } = req.params;
+    //const userId = req.params['id'];
+    console.log( req.params)
+    console.log(id);
     (async () => {
         try {
-            const rows = await queryConn('SELECT privateKey FROM users WHERE id = ?',[userId]);
+            const rows = await queryConn('SELECT privateKey FROM users WHERE id = ?',[id]);
             console.log(rows);
             const seed=JSON.parse(JSON.stringify(rows))[0]['privateKey'];
             console.log(seed);
             const token=totp(seed, { period: 60 });
             
-            mysqlConnection.query(query,[0,token,userId,0],(err,rows,fields)=>{
+            mysqlConnection.query(query,[0,token,id,0],(err,rows,fields)=>{
                 if(!err){
-                    res.json(token);
+                    res.json({'token':token});
                 }
             
                 else{
@@ -87,25 +90,6 @@ router.post('/generarToken',(req,res)=>{
         } finally {
         }
     })()
-});
-
-   /*  mysqlConnection.query('SELECT privateKey FROM users WHERE id = ?',[userId],(err,rows,field)=>{
-        if(!err){
-            const seed=rows[0];
-            const token=totp(seed, { period: 60 });
-            mysqlConnection.query(query,[0,token,userId,0,date_ob.toISOString().slice(0, 19).replace('T', ' ')],(err,rows,fields)=>{
-                if(!err){
-                    res.json(token);
-                }
-            
-                else{
-                    res.json(err);
-                } 
-            });
-        }else{
-            res.json(err);
-        }
-    }); */
 });
 
 module.exports= router;

@@ -14,3 +14,5 @@ id INT (11) NOT NULL AUTO_INCREMENT,
 privateKey VARCHAR(16) NOT NULL,
 PRIMARY KEY (id)
 );
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'Lola0202';
+flush privileges;
